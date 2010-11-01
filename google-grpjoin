@@ -1,0 +1,34 @@
+#!/usr/bin/env python
+
+join_url = "http://groups.google.com/group/%(groupname)s/boxsubscribe?email=%(email)s"
+
+# std library imports
+import os
+import sys
+import urllib
+import urllib2
+
+if not (sys.argv[1] or sys.argv[2]):
+    print "usage: %s groupname email" % os.path.basename(sys.argv[0])
+    sys.exit(1)
+
+fillvars = {
+    'groupname': urllib.quote(sys.argv[1]),
+    'email'    : urllib.quote(sys.argv[2]),
+}
+
+print "url = %s" % (join_url % fillvars)
+
+try:
+    response = urllib2.urlopen(join_url % fillvars)
+except urllib2.URLError, e:
+    print "URLError: " + e.msg
+    sys.exit(1)
+
+html = response.read()
+if 'does not appear to be a valid email address' in html:
+    print "Error: Email address invalid"
+    sys.exit(1)
+
+print "Subscribed. Confirmation email sent to %s." \
+        % ( urllib.unquote(fillvars['email']) )
